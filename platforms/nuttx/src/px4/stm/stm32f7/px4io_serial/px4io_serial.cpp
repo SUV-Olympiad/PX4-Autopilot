@@ -237,9 +237,6 @@ ArchPX4IOSerial::ioctl(unsigned operation, unsigned &arg)
 int
 ArchPX4IOSerial::_bus_exchange(IOPacket *_packet)
 {
-	// to be paranoid ensure all previous DMA transfers are cleared
-	_abort_dma();
-
 	_current_packet = _packet;
 
 	/* clear data that may be in the RDR and clear overrun error: */
@@ -313,6 +310,7 @@ ArchPX4IOSerial::_bus_exchange(IOPacket *_packet)
 
 	/* wait for the transaction to complete - 64 bytes @ 1.5Mbps ~426µs */
 	int ret;
+	irqstate_t irqs = enter_critical_section();
 
 	for (;;) {
 		ret = sem_timedwait(&_completion_semaphore, &abstime);
@@ -320,42 +318,46 @@ ArchPX4IOSerial::_bus_exchange(IOPacket *_packet)
 		if (ret == OK) {
 			/* check for DMA errors */
 			if (_rx_dma_status & DMA_STATUS_TEIF) {
-				// stream transfer error, ensure all DMA is also stopped before exiting early
+				/* stream transfer error, ensure all DMA is also stopped before exiting */
 				_abort_dma();
 				perf_count(_pc_dmaerrs);
 				ret = -EIO;
 				break;
-			}
 
-			/* check packet CRC - corrupt packet errors mean IO receive CRC error */
-			uint8_t crc = _current_packet->crc;
-			_current_packet->crc = 0;
-
-			if ((crc != crc_packet(_current_packet)) || (PKT_CODE(*_current_packet) == PKT_CODE_CORRUPT)) {
-				_abort_dma();
-				perf_count(_pc_crcerrs);
-				ret = -EIO;
+			} else {
+				/* succesful transaction (crc can still fail) */
 				break;
 			}
 
-			/* successful txn (may still be reporting an error) */
-			break;
+		} else {
+			if (errno == ETIMEDOUT) {
+				/* something has broken - clear out any partial DMA state and reconfigure */
+				_abort_dma();
+				perf_count(_pc_timeouts);
+				perf_cancel(_pc_txns);		/* don't count this as a transaction */
+				break;
+			}
 		}
 
-		if (errno == ETIMEDOUT) {
-			/* something has broken - clear out any partial DMA state and reconfigure */
-			_abort_dma();
-			perf_count(_pc_timeouts);
-			perf_cancel(_pc_txns);		/* don't count this as a transaction */
-			break;
-		}
-
-		/* we might? see this for EINTR */
-		syslog(LOG_ERR, "unexpected ret %d/%d\n", ret, errno);
+		/* Loop in case we are interrupted on sleep */
 	}
 
-	/* reset DMA status */
+	/* Make sure the DMA is properly stopped (set en bit, prevent further interrupts) */
+	stm32_dmastop(_rx_dma);
+	stm32_dmastop(_tx_dma);
 	_rx_dma_status = _dma_status_inactive;
+	leave_critical_section(irqs);
+
+	if (ret == OK) {
+		/* check packet CRC - corrupt packet errors mean IO receive CRC error */
+		uint8_t crc = _current_packet->crc;
+		_current_packet->crc = 0;
+
+		if ((crc != crc_packet(_current_packet)) || (PKT_CODE(*_current_packet) == PKT_CODE_CORRUPT)) {
+			perf_count(_pc_crcerrs);
+			ret = -EIO;
+		}
+	}
 
 	/* update counters */
 	perf_end(_pc_txns);
@@ -460,10 +462,10 @@ ArchPX4IOSerial::_do_interrupt()
 			if ((length < 1) || (length < PKT_SIZE(*_current_packet))) {
 				perf_count(_pc_badidle);
 
-				/* stop the receive DMA */
-				stm32_dmastop(_rx_dma);
+				/* abort dma on error */
+				_abort_dma();
 
-				/* complete the short reception */
+				/* error out */
 				_do_rx_dma_callback(DMA_STATUS_TEIF);
 				return;
 			}
