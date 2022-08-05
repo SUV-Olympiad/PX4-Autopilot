@@ -1,13 +1,11 @@
-# 사용방법 : 기존의 gazebo_sitl_multiple_run 과 동일하게 실행 가능.
-# ex) . /home/kmk/olympiad_clone/PX4-Autopilot/Tools/suv_run.sh -t px4_sitl_rtps -m iris -n 4 -w empty
-# /Tools/drone_list.csv 에 드론종류, x, y 꼴로 저장된 값들을 불러옴.
 #!/bin/bash
 # run multiple instances of the 'px4' binary, with the gazebo SITL simulation
 # It assumes px4 is already built, with 'make px4_sitl_default gazebo'
 
+# Load the drone type, x-coordinate, y-coordinate from /Tools/drone_list.csv
 # The simulator is expected to send to TCP port 4560+i for i in [0, N-1]
 # For example gazebo can be run like this:
-#./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
+#./Tools/suv_run.sh -t px4_sitl_rtps -m iris -n 4 -w empty
 
 function cleanup() {
 	pkill -x px4
