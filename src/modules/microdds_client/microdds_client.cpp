@@ -129,6 +129,12 @@ void MicroddsClient::run()
 
 	int polling_topic_sub = orb_subscribe(ORB_ID(vehicle_imu));
 
+    int32_t  sys_id;
+    char name[32] = {};
+    param_t sysid_param = param_find("MAV_SYS_ID");
+    param_get(sysid_param, &sys_id);
+    snprintf(name, sizeof(name), "vehicle%d",sys_id);
+
 	while (!should_exit()) {
 		bool got_response = false;
 
@@ -143,7 +149,7 @@ void MicroddsClient::run()
 
 		// Session
 		uxrSession session;
-		uxr_init_session(&session, _comm, 0xAAAABBBB);
+        uxr_init_session(&session, _comm, 0xAAAACCCC+sys_id);
 
 		if (!uxr_create_session(&session)) {
 			PX4_ERR("uxr_create_session failed");
@@ -202,12 +208,12 @@ void MicroddsClient::run()
 			return;
 		}
 
-		if (!_subs->init(&session, reliable_out, participant_id)) {
+        if (!_subs->init(&session, reliable_out, participant_id, name)) {
 			PX4_ERR("subs init failed");
 			return;
 		}
 
-		if (!_pubs->init(&session, reliable_out, input_stream, participant_id)) {
+        if (!_pubs->init(&session, reliable_out, input_stream, participant_id, name)) {
 			PX4_ERR("pubs init failed");
 			return;
 		}
