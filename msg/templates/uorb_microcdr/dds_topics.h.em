@@ -48,11 +48,11 @@ struct SendTopicsSubs {
 
 	uint32_t num_payload_sent{};
 
-	bool init(uxrSession* session_, uxrStreamId stream_id, uxrObjectId participant_id);
+    bool init(uxrSession* session_, uxrStreamId stream_id, uxrObjectId participant_id, const char* name);
 	void update(uxrStreamId stream_id);
 };
 
-bool SendTopicsSubs::init(uxrSession* session_, uxrStreamId stream_id, uxrObjectId participant_id)
+bool SendTopicsSubs::init(uxrSession* session_, uxrStreamId stream_id, uxrObjectId participant_id, const char* name)
 {
 	session = session_;
 
@@ -63,12 +63,14 @@ topic_pascal = topic.replace("_", " ").title().replace(" ", "")
 	{
 
 		uxrObjectId topic_id = uxr_object_id(@(idx)+1, UXR_TOPIC_ID);
-		const char* topic_xml = "<dds>"
+        const char* topic_xml_fmt = "<dds>"
 				"<topic>"
-				"<name>rt/fmu/out/@(topic_pascal)</name>"
+                "<name>rt/%s/out/@(topic_pascal)</name>"
 				"<dataType>px4_msgs::msg::dds_::@(topic_pascal)_</dataType>"
 				"</topic>"
 				"</dds>";
+                char topic_xml[512] = {};
+                snprintf(topic_xml, sizeof(topic_xml), topic_xml_fmt, name);
 		uint16_t topic_req = uxr_buffer_create_topic_xml(session, stream_id, topic_id, participant_id, topic_xml,
 						UXR_REPLACE);
 
@@ -79,15 +81,17 @@ topic_pascal = topic.replace("_", " ").title().replace(" ", "")
 
 		uxrObjectId datawriter_id = uxr_object_id(@(idx)+1, UXR_DATAWRITER_ID);
 		@(topic)_data_writer = datawriter_id;
-		const char* datawriter_xml = "<dds>"
+        const char* datawriter_xml_fmt = "<dds>"
 				"<data_writer>"
 				"<topic>"
 				"<kind>NO_KEY</kind>"
-				"<name>rt/fmu/out/@(topic_pascal)</name>"
+                "<name>rt/%s/out/@(topic_pascal)</name>"
 				"<dataType>px4_msgs::msg::dds_::@(topic_pascal)_</dataType>"
 				"</topic>"
 				"</data_writer>"
 				"</dds>";
+                char datawriter_xml[512] = {};
+                snprintf(datawriter_xml, sizeof(datawriter_xml), datawriter_xml_fmt, name);
 		uint16_t datawriter_req = uxr_buffer_create_datawriter_xml(session, stream_id, datawriter_id, publisher_id,
 						datawriter_xml, UXR_REPLACE);
 
@@ -141,10 +145,10 @@ struct RcvTopicsPubs {
 
 	uint32_t num_payload_received{};
 
-	bool init(uxrSession* session_, uxrStreamId stream_id, uxrStreamId input_stream, uxrObjectId participant_id);
+    bool init(uxrSession* session_, uxrStreamId stream_id, uxrStreamId input_stream, uxrObjectId participant_id, const char* name);
 };
 
-bool RcvTopicsPubs::init(uxrSession* session_, uxrStreamId stream_id, uxrStreamId input_stream, uxrObjectId participant_id)
+    bool RcvTopicsPubs::init(uxrSession* session_, uxrStreamId stream_id, uxrStreamId input_stream, uxrObjectId participant_id, const char* name)
 {
 	session = session_;
     uxr_set_topic_callback(session, on_topic_update, this);
@@ -161,24 +165,28 @@ topic_pascal = topic.replace("_", " ").title().replace(" ", "")
 		uint16_t subscriber_req = uxr_buffer_create_subscriber_xml(session, stream_id, subscriber_id, participant_id, subscriber_xml, UXR_REPLACE);
 
 		uxrObjectId topic_id = uxr_object_id(1000+@(idx), UXR_TOPIC_ID);
-		const char* topic_xml = "<dds>"
+        const char* topic_xml_fmt = "<dds>"
 				"<topic>"
-				"<name>rt/fmu/in/@(topic_pascal)</name>"
+                "<name>rt/%s/in/@(topic_pascal)</name>"
 				"<dataType>px4_msgs::msg::dds_::@(topic_pascal)_</dataType>"
 				"</topic>"
 				"</dds>";
+                char topic_xml[512] = {};
+                snprintf(topic_xml, sizeof(topic_xml), topic_xml_fmt, name);
 		uint16_t topic_req = uxr_buffer_create_topic_xml(session, stream_id, topic_id, participant_id, topic_xml, UXR_REPLACE);
 
 		uxrObjectId datareader_id = uxr_object_id(@(idx)+1, UXR_DATAREADER_ID);
-		const char* datareader_xml = "<dds>"
+        const char* datareader_xml_fmt = "<dds>"
 										 "<data_reader>"
 											 "<topic>"
 												 "<kind>NO_KEY</kind>"
-												 "<name>rt/fmu/in/@(topic_pascal)</name>"
+                                                 "<name>rt/%s/in/@(topic_pascal)</name>"
 												 "<dataType>px4_msgs::msg::dds_::@(topic_pascal)_</dataType>"
 											 "</topic>"
 										 "</data_reader>"
 									 "</dds>";
+                char datareader_xml[512] = {};
+                snprintf(datareader_xml, sizeof(datareader_xml), datareader_xml_fmt, name);
 		uint16_t datareader_req = uxr_buffer_create_datareader_xml(session, stream_id, datareader_id, subscriber_id, datareader_xml, UXR_REPLACE);
 
 		uint8_t status[3];

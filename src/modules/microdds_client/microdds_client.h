@@ -34,6 +34,7 @@
 #pragma once
 
 #include <px4_platform_common/module.h>
+#include <lib/parameters/param.h>
 
 #include <src/modules/micrortps_bridge/micrortps_client/dds_topics.h>
 
@@ -87,5 +88,7 @@ private:
 	int _last_payload_tx_rate{}; ///< in B/s
 	int _last_payload_rx_rate{}; ///< in B/s
 	bool _connected{false};
+
+    param_t _sys_id{PARAM_INVALID};
 };
 
