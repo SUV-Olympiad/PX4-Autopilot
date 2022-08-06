@@ -2,10 +2,14 @@
 # run multiple instances of the 'px4' binary, with the gazebo SITL simulation
 # It assumes px4 is already built, with 'make px4_sitl_default gazebo'
 
-# Load the drone type, x-coordinate, y-coordinate from /Tools/drone_list.csv
 # The simulator is expected to send to TCP port 4560+i for i in [0, N-1]
 # For example gazebo can be run like this:
-#./Tools/suv_run.sh -t px4_sitl_rtps -m iris -n 4 -w empty
+#./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
+# ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles]  -w empty
+# The [vehicles] file should have vehicle_type, pos_x, posy
+# iris:0:0
+# plane:5:5
+# iris:10:0
 
 function cleanup() {
 	pkill -x px4
@@ -53,14 +57,14 @@ then
 	exit 1
 fi
 
-while getopts n:m:w:s:t:l: option
+while getopts n:m:w:f:t:l: option
 do
 	case "${option}"
 	in
 		n) NUM_VEHICLES=${OPTARG};;
 		m) VEHICLE_MODEL=${OPTARG};;
 		w) WORLD=${OPTARG};;
-		s) SCRIPT=${OPTARG};;
+		f) SCRIPT=${OPTARG};;
 		t) TARGET=${OPTARG};;
 		l) LABEL=_${OPTARG};;
 	esac
@@ -106,24 +110,17 @@ if [ -z ${SCRIPT} ]; then
 		exit 1
 	fi
 
-	while read line; do
-		if [$n -ge $num_vehicles ]; then
-			break
-		fi
-		target_vehicle=$(echo $line | cut -f1 -d,)
-		target_x=$(echo $line | cut -f2 -d,)
-		target_y=$(echo $line | cut -f3 -d,)
-		spawn_model ${vehicle_model} $n $target_x $target_y
+	while [ $n -lt $num_vehicles ]; do
+		spawn_model ${vehicle_model} $n
 		n=$(($n + 1))
-	done < $build_path/Tools/drone_list.csv
+	done
 else
 	IFS=,
-	for target in ${SCRIPT}; do
+	while read target; do
 		target="$(echo "$target" | tr -d ' ')" #Remove spaces
 		target_vehicle=$(echo $target | cut -f1 -d:)
-		target_number=$(echo $target | cut -f2 -d:)
-		target_x=$(echo $target | cut -f3 -d:)
-		target_y=$(echo $target | cut -f4 -d:)
+		target_x=$(echo $target | cut -f2 -d:)
+		target_y=$(echo $target | cut -f3 -d:)
 
 		if [ $n -gt 255 ]
 		then
@@ -131,14 +128,10 @@ else
 			exit 1
 		fi
 
-		m=0
-		while [ $m -lt ${target_number} ]; do
-			export PX4_SIM_MODEL=${target_vehicle}
-			spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y
-			m=$(($m + 1))
-			n=$(($n + 1))
-		done
-	done
+		export PX4_SIM_MODEL=${target_vehicle}
+		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y
+		n=$(($n + 1))
+	done < ${SCRIPT}
 
 fi
 trap "cleanup" SIGINT SIGTERM EXIT
