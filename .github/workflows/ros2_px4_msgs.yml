@@ -1,0 +1,45 @@
+name: PX4_msgs to ROS2
+
+on:
+  push:
+    paths:
+    - "msg/*.msg"
+    branches:
+    - 'siwoon'
+
+jobs:
+
+  ROS_msgs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+
+      - name: git config
+        env:
+          USER_NAME: ${{ github.event.pusher.name }}
+          USER_EMAIL: ${{ github.event.pusher.email }}
+        run: |
+          git config --global user.email "$USER_EMAIL"
+          git config --global user.name "$USER_NAME"
+
+      - name: make deploy keys
+        env:
+          GH_ACTION_DEPLOY_KEY: ${{ secrets.GH_ACTION_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$GH_ACTION_DEPLOY_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ls ~/.ssh/
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+
+      - name: PX4 ROS msgs
+        run: |
+          git clone git@github.com:SongSiWoon/px4_msgs.git
+          python3 msg/tools/uorb_to_ros_msgs.py msg/ px4_msgs/msg/
+          cd px4_msgs/
+          git add msg/*.msg
+          git commit -m "Feat: update automatically px4_msgs with action"
+          git push origin test
