@@ -17,3 +17,4 @@ uint8 SOURCE_RC_BUTTON = 2
 uint8 SOURCE_RC_MODE_SLOT = 3
 
 uint8 mode # for ACTION_SWITCH_MODE what mode is requested according to commander_state.MAIN_STATE_
+#test
