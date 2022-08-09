@@ -5,7 +5,7 @@ on:
     paths:
     - "msg/*.msg"
     branches:
-    - 'siwoon'
+    - 'olympiad'
 
 jobs:
 
@@ -44,4 +44,4 @@ jobs:
           git status
           git commit -m "Feat: update automatically px4_msgs with action"
           pwd
-          git push origin siwoon
+          git push origin olympiad
