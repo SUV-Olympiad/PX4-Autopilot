@@ -40,6 +40,8 @@ jobs:
           git clone git@github.com:SUV-Olympiad/px4_msgs.git
           python3 msg/tools/uorb_to_ros_msgs.py msg/ px4_msgs/msg/
           cd px4_msgs/
-          git add msg/*.msg
+          git add .
+          git status
           git commit -m "Feat: update automatically px4_msgs with action"
+          pwd
           git push origin test
