@@ -5,8 +5,8 @@
 # The simulator is expected to send to TCP port 4560+i for i in [0, N-1]
 # For example gazebo can be run like this:
 #./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
-# ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles]  -w empty
-# The [vehicles] file should have vehicle_type, pos_x, posy
+# ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles] -w empty
+# The [vehicles] file should have vehicle_type, pos_x, pos_y
 # iris:0:0
 # plane:5:5
 # iris:10:0
@@ -52,8 +52,8 @@ function spawn_model() {
 
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
-	echo "Usage: $0 [-n <num_vehicles>] [-m <vehicle_model>] [-w <world>] [-s <script>]"
-	echo "-s flag is used to script spawning vehicles e.g. $0 -s iris:3,plane:2"
+	echo "Usage: $0 [-n <num_vehicles>] [-m <vehicle_model>] [-w <world>] [-f <script>]"
+	echo "-f flag is used to script spawning vehicles e.g. $0 -f [script_name]"
 	exit 1
 fi
 
