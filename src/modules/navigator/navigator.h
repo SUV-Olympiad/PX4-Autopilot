@@ -269,6 +269,8 @@ public:
 
 	int mission_instance_count() const { return _mission_result.instance_count; }
 
+	int mission_total_count() const { return _mission_result.seq_total; }
+
 	void set_mission_failure_heading_timeout();
 
 	void setMissionLandingInProgress(bool in_progress) { _mission_landing_in_progress = in_progress; }

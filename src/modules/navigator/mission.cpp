@@ -74,7 +74,7 @@ void Mission::mission_init()
 {
 	// init mission state, do it here to allow navigator to use stored mission even if mavlink failed to start
 	mission_s mission{};
-
+	PX4_INFO("mission init");
 	if (dm_read(DM_KEY_MISSION_STATE, 0, &mission, sizeof(mission_s)) == sizeof(mission_s)) {
 		if ((mission.timestamp != 0)
 		    && (mission.dataman_id == DM_KEY_WAYPOINTS_OFFBOARD_0 || mission.dataman_id == DM_KEY_WAYPOINTS_OFFBOARD_1)) {
@@ -127,7 +127,7 @@ Mission::on_inactive()
 
 		/* load missions from storage */
 		mission_s mission_state = {};
-
+		PX4_INFO("WTF!!!!");
 		dm_lock(DM_KEY_MISSION_STATE);
 
 		/* read current state */
@@ -1898,6 +1898,57 @@ bool Mission::position_setpoint_equal(const position_setpoint_s *p1, const posit
 		((fabsf(p1->cruising_throttle - p2->cruising_throttle) < FLT_EPSILON) || (!PX4_ISFINITE(p1->cruising_throttle)
 				&& !PX4_ISFINITE(p2->cruising_throttle))));
 
+}
+
+void Mission::publish_all_missions()
+{
+	navigator_mission_item_s navigator_mission_item{};
+	PX4_INFO("pub_all_mission!!!!");
+	PX4_INFO("%d", _navigator->mission_total_count());
+	// PX4_INFO("Mission #%" PRIu8 " loaded, %" PRIu16 " WPs", mission.dataman_id, mission.count);
+	for ( int i = 0 ; i < _navigator->mission_total_count() ; i++ ) {
+		mission_item_s item;
+
+		// read mission item
+		bool status = read_mission_item(i, &item);
+
+		if ( status == true ) {
+			// PX4_INFO("mission : %d", i);
+			// PX4_INFO("lat : %lf", item.lat);
+			// PX4_INFO("lon : %lf", item.lon);
+			navigator_mission_item.instance_count = _navigator->mission_instance_count();
+			navigator_mission_item.sequence_current = i;
+			navigator_mission_item.nav_cmd = item.nav_cmd;
+			navigator_mission_item.latitude = item.lat;
+			navigator_mission_item.longitude = item.lon;
+			navigator_mission_item.altitude = item.altitude;
+
+			navigator_mission_item.time_inside = get_time_inside(_mission_item);
+			navigator_mission_item.acceptance_radius = item.acceptance_radius;
+			navigator_mission_item.loiter_radius = item.loiter_radius;
+			navigator_mission_item.yaw = item.yaw;
+
+			navigator_mission_item.frame = item.frame;
+			navigator_mission_item.frame = item.origin;
+
+			navigator_mission_item.loiter_exit_xtrack = item.loiter_exit_xtrack;
+			navigator_mission_item.force_heading = item.force_heading;
+			navigator_mission_item.altitude_is_relative = item.altitude_is_relative;
+			navigator_mission_item.autocontinue = item.autocontinue;
+			navigator_mission_item.vtol_back_transition = item.vtol_back_transition;
+
+			navigator_mission_item.timestamp = hrt_absolute_time();
+
+			// PX4_INFO("Mission : %d", int(navigator_mission_item.sequence_current));
+			// PX4_INFO("Lat : %lf", double(navigator_mission_item.latitude));
+			// PX4_INFO("Lon : %lf", double(navigator_mission_item.longitude));
+			// _navigator_mission_item_multi_pub.publish(navigator_mission_item);
+			_navigator_mission_item_pub.publish(navigator_mission_item);
+
+			// give delay pushlish for ros2
+			px4_sleep(1);
+		}
+	}
 }
 
 void Mission::publish_navigator_mission_item()
