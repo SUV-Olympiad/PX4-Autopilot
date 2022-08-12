@@ -74,7 +74,7 @@ void Mission::mission_init()
 {
 	// init mission state, do it here to allow navigator to use stored mission even if mavlink failed to start
 	mission_s mission{};
-	PX4_INFO("mission init");
+
 	if (dm_read(DM_KEY_MISSION_STATE, 0, &mission, sizeof(mission_s)) == sizeof(mission_s)) {
 		if ((mission.timestamp != 0)
 		    && (mission.dataman_id == DM_KEY_WAYPOINTS_OFFBOARD_0 || mission.dataman_id == DM_KEY_WAYPOINTS_OFFBOARD_1)) {
@@ -127,7 +127,7 @@ Mission::on_inactive()
 
 		/* load missions from storage */
 		mission_s mission_state = {};
-		PX4_INFO("WTF!!!!");
+
 		dm_lock(DM_KEY_MISSION_STATE);
 
 		/* read current state */
@@ -1903,9 +1903,7 @@ bool Mission::position_setpoint_equal(const position_setpoint_s *p1, const posit
 void Mission::publish_all_missions()
 {
 	navigator_mission_item_s navigator_mission_item{};
-	PX4_INFO("pub_all_mission!!!!");
-	PX4_INFO("%d", _navigator->mission_total_count());
-	// PX4_INFO("Mission #%" PRIu8 " loaded, %" PRIu16 " WPs", mission.dataman_id, mission.count);
+
 	for ( int i = 0 ; i < _navigator->mission_total_count() ; i++ ) {
 		mission_item_s item;
 
@@ -1913,9 +1911,7 @@ void Mission::publish_all_missions()
 		bool status = read_mission_item(i, &item);
 
 		if ( status == true ) {
-			// PX4_INFO("mission : %d", i);
-			// PX4_INFO("lat : %lf", item.lat);
-			// PX4_INFO("lon : %lf", item.lon);
+
 			navigator_mission_item.instance_count = _navigator->mission_instance_count();
 			navigator_mission_item.sequence_current = i;
 			navigator_mission_item.nav_cmd = item.nav_cmd;
@@ -1939,14 +1935,11 @@ void Mission::publish_all_missions()
 
 			navigator_mission_item.timestamp = hrt_absolute_time();
 
-			// PX4_INFO("Mission : %d", int(navigator_mission_item.sequence_current));
-			// PX4_INFO("Lat : %lf", double(navigator_mission_item.latitude));
-			// PX4_INFO("Lon : %lf", double(navigator_mission_item.longitude));
-			// _navigator_mission_item_multi_pub.publish(navigator_mission_item);
+
 			_navigator_mission_item_pub.publish(navigator_mission_item);
 
-			// give delay pushlish for ros2
-			px4_sleep(1);
+			// give delay 0.01 sec pushlish for ros2 (1 : 1/1000 ms)
+			px4_usleep(10000);
 		}
 	}
 }
