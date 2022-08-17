@@ -1900,6 +1900,51 @@ bool Mission::position_setpoint_equal(const position_setpoint_s *p1, const posit
 
 }
 
+void Mission::publish_all_missions()
+{
+	navigator_mission_item_s navigator_mission_item{};
+
+	for ( int i = 0 ; i < _navigator->mission_total_count() ; i++ ) {
+		mission_item_s item;
+
+		// read mission item
+		bool status = read_mission_item(i, &item);
+
+		if ( status == true ) {
+
+			navigator_mission_item.instance_count = _navigator->mission_instance_count();
+			navigator_mission_item.sequence_current = i;
+			navigator_mission_item.sequence_total = _navigator->mission_total_count();
+			navigator_mission_item.nav_cmd = item.nav_cmd;
+			navigator_mission_item.latitude = item.lat;
+			navigator_mission_item.longitude = item.lon;
+			navigator_mission_item.altitude = item.altitude;
+
+			navigator_mission_item.time_inside = get_time_inside(_mission_item);
+			navigator_mission_item.acceptance_radius = item.acceptance_radius;
+			navigator_mission_item.loiter_radius = item.loiter_radius;
+			navigator_mission_item.yaw = item.yaw;
+
+			navigator_mission_item.frame = item.frame;
+			navigator_mission_item.frame = item.origin;
+
+			navigator_mission_item.loiter_exit_xtrack = item.loiter_exit_xtrack;
+			navigator_mission_item.force_heading = item.force_heading;
+			navigator_mission_item.altitude_is_relative = item.altitude_is_relative;
+			navigator_mission_item.autocontinue = item.autocontinue;
+			navigator_mission_item.vtol_back_transition = item.vtol_back_transition;
+
+			navigator_mission_item.timestamp = hrt_absolute_time();
+
+
+			_navigator_mission_item_pub.publish(navigator_mission_item);
+
+			// give delay 0.01 sec pushlish for ros2 (1 : 1/1000 ms)
+			px4_usleep(10000);
+		}
+	}
+}
+
 void Mission::publish_navigator_mission_item()
 {
 	navigator_mission_item_s navigator_mission_item{};

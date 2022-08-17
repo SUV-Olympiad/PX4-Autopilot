@@ -32,8 +32,17 @@ rtps:
     send:    true
   - msg:     timesync
     receive: true
-    send: true
-  - msg: vehicle_local_position
-    send: true
-  - msg: vehicle_global_position
-    send: true
+    send:    true
+  - msg:     vehicle_local_position
+    send:    true
+  - msg:     vehicle_global_position
+    send:    true
+  - msg:     mission
+    send:    true
+    receive: true
+  - msg:     mission_result
+    send:    true
+    receive: true
+  - msg:     navigator_mission_item
+    send:    true
+    receive: true

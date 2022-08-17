@@ -547,7 +547,10 @@ void Navigator::run()
 				*rep = *(get_position_setpoint_triplet());
 				rep->current.cruising_speed = get_cruising_speed();
 				rep->current.cruising_throttle = get_cruising_throttle();
-			}
+			} else if (cmd.command == vehicle_command_s::VEHICLE_CMD_CUSTOM_2) {
+				// TODO: call publish_all_missions()
+				_mission.publish_all_missions();
+ 			}
 		}
 
 		/* Check for traffic */
