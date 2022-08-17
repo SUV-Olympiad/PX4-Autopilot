@@ -47,6 +47,8 @@
 #include "mission_block.h"
 #include "mission_feasibility_checker.h"
 #include "navigator_mode.h"
+// #include "PublicationMulti.hpp"
+#include <uORB/PublicationMulti.hpp>
 
 #include <float.h>
 
@@ -63,6 +65,7 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_roi.h>
 #include <uORB/uORB.h>
+
 
 class Navigator;
 
@@ -96,7 +99,7 @@ public:
 	float get_landing_alt() { return _landing_alt; }
 
 	void set_closest_item_as_current();
-
+	void publish_all_missions();
 	/**
 	 * Set a new mission mode and handle the switching between the different modes
 	 *
@@ -234,6 +237,7 @@ private:
 
 	void publish_navigator_mission_item();
 
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MIS_DIST_1WP>) _param_mis_dist_1wp,
 		(ParamFloat<px4::params::MIS_DIST_WPS>) _param_mis_dist_wps,
@@ -241,6 +245,7 @@ private:
 	)
 
 	uORB::Publication<navigator_mission_item_s> _navigator_mission_item_pub{ORB_ID::navigator_mission_item};
+	uORB::PublicationMulti<navigator_mission_item_s> _navigator_mission_item_multi_pub{ORB_ID::navigator_mission_item};
 
 	uORB::Subscription	_mission_sub{ORB_ID(mission)};		/**< mission subscription */
 	mission_s		_mission {};
