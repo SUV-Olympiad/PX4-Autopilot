@@ -1914,6 +1914,7 @@ void Mission::publish_all_missions()
 
 			navigator_mission_item.instance_count = _navigator->mission_instance_count();
 			navigator_mission_item.sequence_current = i;
+			navigator_mission_item.sequence_total = _navigator->mission_total_count();
 			navigator_mission_item.nav_cmd = item.nav_cmd;
 			navigator_mission_item.latitude = item.lat;
 			navigator_mission_item.longitude = item.lon;
