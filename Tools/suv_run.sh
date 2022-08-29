@@ -6,10 +6,10 @@
 # For example gazebo can be run like this:
 #./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
 # ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles] -w empty
-# The [vehicles] file should have vehicle_type, pos_x, pos_y
-# iris:0:0
-# plane:5:5
-# iris:10:0
+# The [vehicles] file should have vehicle_type, pos_x, pos_y, group
+# iris:0:0:A
+# plane:5:5:B
+# iris:10:0:C
 
 function cleanup() {
 	pkill -x px4
@@ -116,21 +116,32 @@ if [ -z ${SCRIPT} ]; then
 	done
 else
 	IFS=,
+	a_n=0
+	b_n=100
+	c_n=200
 	while read target; do
 		target="$(echo "$target" | tr -d ' ')" #Remove spaces
 		target_vehicle=$(echo $target | cut -f1 -d:)
 		target_x=$(echo $target | cut -f2 -d:)
 		target_y=$(echo $target | cut -f3 -d:)
+		group=$(echo $target | cut -f4 -d:)
 
 		if [ $n -gt 255 ]
 		then
 			echo "Tried spawning $n vehicles. The maximum number of supported vehicles is 255"
 			exit 1
 		fi
-
+    case "${group}"
+    	in
+    	  A) n=$a_n
+    	    a_n=$(($a_n + 1));;
+    	  B) n=$b_n
+    	    b_n=$(($b_n + 1));;
+    	  C) n=$c_n
+           c_n=$(($c_n + 1));;
+    esac
 		export PX4_SIM_MODEL=${target_vehicle}
 		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y
-		n=$(($n + 1))
 	done < ${SCRIPT}
 
 fi
