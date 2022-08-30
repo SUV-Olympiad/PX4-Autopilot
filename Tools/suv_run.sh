@@ -117,8 +117,8 @@ if [ -z ${SCRIPT} ]; then
 else
 	IFS=,
 	a_n=0
-	b_n=100
-	c_n=200
+	b_n=10
+	c_n=20
 	while read target; do
 		target="$(echo "$target" | tr -d ' ')" #Remove spaces
 		target_vehicle=$(echo $target | cut -f1 -d:)
