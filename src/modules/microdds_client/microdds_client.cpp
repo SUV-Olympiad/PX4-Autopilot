@@ -133,7 +133,7 @@ void MicroddsClient::run()
     char name[32] = {};
     param_t sysid_param = param_find("MAV_SYS_ID");
     param_get(sysid_param, &sys_id);
-    snprintf(name, sizeof(name), "vehicle%d",sys_id);
+    snprintf(name, sizeof(name), "vehicle%d",(int)sys_id);
 
 	while (!should_exit()) {
 		bool got_response = false;

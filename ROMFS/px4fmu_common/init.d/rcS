@@ -517,6 +517,11 @@ else
 	unset BOARD_RC_EXTRAS
 
 	#
+	# Start the microdds_client with UDP transport if module exists
+	#
+	. ${R}etc/init.d/rc.rtps
+
+	#
 	# Start any custom addons from the sdcard.
 	#
 	if [ -f $FEXTRAS ]

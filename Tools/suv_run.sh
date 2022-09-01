@@ -5,11 +5,11 @@
 # The simulator is expected to send to TCP port 4560+i for i in [0, N-1]
 # For example gazebo can be run like this:
 #./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
-# ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles]  -w empty
-# The [vehicles] file should have vehicle_type, pos_x, posy
-# iris:0:0
-# plane:5:5
-# iris:10:0
+# ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles] -w empty
+# The [vehicles] file should have vehicle_type, pos_x, pos_y, group
+# iris:0:0:A
+# plane:5:5:B
+# iris:10:0:C
 
 function cleanup() {
 	pkill -x px4
@@ -52,8 +52,8 @@ function spawn_model() {
 
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
-	echo "Usage: $0 [-n <num_vehicles>] [-m <vehicle_model>] [-w <world>] [-s <script>]"
-	echo "-s flag is used to script spawning vehicles e.g. $0 -s iris:3,plane:2"
+	echo "Usage: $0 [-n <num_vehicles>] [-m <vehicle_model>] [-w <world>] [-f <script>]"
+	echo "-f flag is used to script spawning vehicles e.g. $0 -f [script_name]"
 	exit 1
 fi
 
@@ -116,21 +116,32 @@ if [ -z ${SCRIPT} ]; then
 	done
 else
 	IFS=,
+	a_n=0
+	b_n=100
+	c_n=200
 	while read target; do
 		target="$(echo "$target" | tr -d ' ')" #Remove spaces
 		target_vehicle=$(echo $target | cut -f1 -d:)
 		target_x=$(echo $target | cut -f2 -d:)
 		target_y=$(echo $target | cut -f3 -d:)
+		group=$(echo $target | cut -f4 -d:)
 
 		if [ $n -gt 255 ]
 		then
 			echo "Tried spawning $n vehicles. The maximum number of supported vehicles is 255"
 			exit 1
 		fi
-
+    case "${group}"
+    	in
+    	  A) n=$a_n
+    	    a_n=$(($a_n + 1));;
+    	  B) n=$b_n
+    	    b_n=$(($b_n + 1));;
+    	  C) n=$c_n
+           c_n=$(($c_n + 1));;
+    esac
 		export PX4_SIM_MODEL=${target_vehicle}
 		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y
-		n=$(($n + 1))
 	done < ${SCRIPT}
 
 fi
