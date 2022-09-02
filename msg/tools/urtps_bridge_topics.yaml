@@ -46,3 +46,5 @@ rtps:
   - msg:     navigator_mission_item
     send:    true
     receive: true
+  - msg:     battery_status
+    send:    true
