@@ -107,4 +107,4 @@ src/systemcmds/topic_listener/listener_generated.cpp
 
 !src/drivers/distance_sensor/broadcom/afbrs50/Lib/*
 
-./Tools/drone_list.csv
+./Tools/*.csv
