@@ -78,7 +78,7 @@ export PX4_SIM_MODEL=${vehicle_model}
 export PX4_HOME_LAT=36.766559
 export PX4_HOME_LON=127.281290
 export PX4_HOME_ALT=53.5
-export GAZEBO_MODEL_PATH=/home/$USER/olympiad/models
+export GAZEBO_MODEL_PATH=$HOME/olympiad/models
 
 echo ${SCRIPT}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
