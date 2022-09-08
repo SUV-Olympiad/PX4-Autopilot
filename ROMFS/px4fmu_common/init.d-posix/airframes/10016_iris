@@ -10,5 +10,3 @@
 . ${R}etc/init.d/rc.mc_defaults
 
 set MIXER quad_w
-param set MIS_DIST_1WP 5000
-param set MIS_DIST_WPS 5000
