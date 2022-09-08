@@ -6,7 +6,7 @@
 # For example gazebo can be run like this:
 #./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
 # ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles] -w empty
-# The [vehicles] file should have vehicle_type, pos_x, pos_y, pos_z, group
+# The [vehicles] file should have vehicle_type, pos_x, pos_y, pos_z(default: 0.83), group
 # iris:0:0:0:A
 # plane:5:5:10:B
 # iris:10:0:0:C
