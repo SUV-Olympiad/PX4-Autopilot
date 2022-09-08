@@ -6,10 +6,10 @@
 # For example gazebo can be run like this:
 #./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
 # ./Tools/gazebo_suv_run.sh -t px4_sitl_rtps -f [vehicles] -w empty
-# The [vehicles] file should have vehicle_type, pos_x, pos_y, group
-# iris:0:0:A
-# plane:5:5:B
-# iris:10:0:C
+# The [vehicles] file should have vehicle_type, pos_x, pos_y, pos_z, group
+# iris:0:0:0:A
+# plane:5:5:10:B
+# iris:10:0:0:C
 
 function cleanup() {
 	pkill -x px4
@@ -22,6 +22,7 @@ function spawn_model() {
 	N=$2 #Instance Number
 	X=$3
 	Y=$4
+	Z=$5
 	X=${X:=0.0}
 	Y=${Y:=$((3*${N}))}
 
@@ -42,9 +43,9 @@ function spawn_model() {
 	../bin/px4 -i $N -d "$build_path/etc" -w sitl_${MODEL}_${N} -s etc/init.d-posix/rcS >out.log 2>err.log &
 	python3 ${src_path}/Tools/sitl_gazebo/scripts/jinja_gen.py ${src_path}/Tools/sitl_gazebo/models/${MODEL}/${MODEL}.sdf.jinja ${src_path}/Tools/sitl_gazebo --mavlink_tcp_port $((4560+${N})) --mavlink_udp_port $((14560+${N})) --mavlink_id $((1+${N})) --gst_udp_port $((5600+${N})) --video_uri $((5600+${N})) --mavlink_cam_udp_port $((14530+${N})) --output-file /tmp/${MODEL}_${N}.sdf
 
-	echo "Spawning ${MODEL}_${N} at ${X} ${Y}"
+	echo "Spawning ${MODEL}_${N} at ${X} ${Y} ${Z}"
 
-	gz model --spawn-file=/tmp/${MODEL}_${N}.sdf --model-name=${MODEL}_${N} -x ${X} -y ${Y} -z 0.83
+	gz model --spawn-file=/tmp/${MODEL}_${N}.sdf --model-name=${MODEL}_${N} -x ${X} -y ${Y} -z {Z}
 
 	popd &>/dev/null
 
@@ -128,7 +129,8 @@ else
 		target_vehicle=$(echo $target | cut -f1 -d:)
 		target_x=$(echo $target | cut -f2 -d:)
 		target_y=$(echo $target | cut -f3 -d:)
-		group=$(echo $target | cut -f4 -d:)
+		target_z=$(echo $target | cut -f4 -d:)
+		group=$(echo $target | cut -f5 -d:)
 
 		if [ $n -gt 255 ]
 		then
@@ -145,7 +147,7 @@ else
            c_n=$(($c_n + 1));;
     esac
 		export PX4_SIM_MODEL=${target_vehicle}
-		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y
+		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y $target_z
 	done < ${SCRIPT}
 
 fi
