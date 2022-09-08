@@ -45,7 +45,7 @@ function spawn_model() {
 
 	echo "Spawning ${MODEL}_${N} at ${X} ${Y} ${Z}"
 
-	gz model --spawn-file=/tmp/${MODEL}_${N}.sdf --model-name=${MODEL}_${N} -x ${X} -y ${Y} -z {Z}
+	gz model --spawn-file=/tmp/${MODEL}_${N}.sdf --model-name=${MODEL}_${N} -x ${X} -y ${Y} -z ${Z}
 
 	popd &>/dev/null
 
