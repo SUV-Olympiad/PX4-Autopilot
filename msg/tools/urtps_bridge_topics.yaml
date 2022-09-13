@@ -39,10 +39,8 @@ rtps:
     send:    true
   - msg:     mission
     send:    true
-    receive: true
-  - msg:     mission_result
-    send:    true
-    receive: true
   - msg:     navigator_mission_item
     send:    true
-    receive: true
+  - msg:     battery_status
+    send:    true
+
