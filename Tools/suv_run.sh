@@ -26,7 +26,7 @@ function spawn_model() {
 	X=${X:=0.0}
 	Y=${Y:=$((3*${N}))}
 
-	SUPPORTED_MODELS=("iris" "plane" "standard_vtol" "rover" "r1_rover" "typhoon_h480")
+	SUPPORTED_MODELS=("iris" "plane" "standard_vtol" "rover" "r1_rover" "typhoon_h480", "iris_fpv_cam")
 	if [[ " ${SUPPORTED_MODELS[*]} " != *"$MODEL"* ]];
 	then
 		echo "ERROR: Currently only vehicle model $MODEL is not supported!"
@@ -35,13 +35,19 @@ function spawn_model() {
 		exit 1
 	fi
 
+  MODEL_PX4 = ${MODEL}
+  if [${MODEL} == "iris_fpv_cam"];
+  then
+    MODEL_PX4 = "iris"
+  fi
+
 	working_dir="$build_path/instance_$n"
 	[ ! -d "$working_dir" ] && mkdir -p "$working_dir"
 
 	pushd "$working_dir" &>/dev/null
 	echo "starting instance $N in $(pwd)"
 	../bin/px4 -i $N -d "$build_path/etc" -w sitl_${MODEL}_${N} -s etc/init.d-posix/rcS >out.log 2>err.log &
-	python3 ${src_path}/Tools/sitl_gazebo/scripts/jinja_gen.py ${src_path}/Tools/sitl_gazebo/models/${MODEL}/${MODEL}.sdf.jinja ${src_path}/Tools/sitl_gazebo --mavlink_tcp_port $((4560+${N})) --mavlink_udp_port $((14560+${N})) --mavlink_id $((1+${N})) --gst_udp_port $((5600+${N})) --video_uri $((5600+${N})) --mavlink_cam_udp_port $((14530+${N})) --output-file /tmp/${MODEL}_${N}.sdf
+	python3 ${src_path}/Tools/sitl_gazebo/scripts/jinja_gen.py ${src_path}/Tools/sitl_gazebo/models/${MODEL}/${MODEL}.sdf.jinja ${src_path}/Tools/sitl_gazebo --instance_number $((${N})) --mavlink_tcp_port $((4560+${N})) --mavlink_udp_port $((14560+${N})) --mavlink_id $((1+${N})) --gst_udp_port $((5600+${N})) --video_uri $((5600+${N})) --mavlink_cam_udp_port $((14530+${N})) --output-file /tmp/${MODEL}_${N}.sdf
 
 	echo "Spawning ${MODEL}_${N} at ${X} ${Y} ${Z}"
 
@@ -144,7 +150,7 @@ else
     	  B) n=$b_n
     	    b_n=$(($b_n + 1));;
     	  C) n=$c_n
-           c_n=$(($c_n + 1));;
+          cd_n=$(($c_n + 1));;
     esac
 		export PX4_SIM_MODEL=${target_vehicle}
 		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y $target_z
