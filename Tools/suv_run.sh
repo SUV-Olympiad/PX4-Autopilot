@@ -26,7 +26,7 @@ function spawn_model() {
 	X=${X:=0.0}
 	Y=${Y:=$((3*${N}))}
 
-	SUPPORTED_MODELS=("iris" "plane" "standard_vtol" "rover" "r1_rover" "typhoon_h480", "iris_fpv_cam")
+	SUPPORTED_MODELS=("iris" "plane" "standard_vtol" "rover" "r1_rover" "typhoon_h480")
 	if [[ " ${SUPPORTED_MODELS[*]} " != *"$MODEL"* ]];
 	then
 		echo "ERROR: Currently only vehicle model $MODEL is not supported!"
@@ -34,12 +34,6 @@ function spawn_model() {
 		trap "cleanup" SIGINT SIGTERM EXIT
 		exit 1
 	fi
-
-  MODEL_PX4 = ${MODEL}
-  if [${MODEL} == "iris_fpv_cam"];
-  then
-    MODEL_PX4 = "iris"
-  fi
 
 	working_dir="$build_path/instance_$n"
 	[ ! -d "$working_dir" ] && mkdir -p "$working_dir"
