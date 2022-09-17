@@ -150,7 +150,7 @@ else
     	  B) n=$b_n
     	    b_n=$(($b_n + 1));;
     	  C) n=$c_n
-          cd_n=$(($c_n + 1));;
+          c_n=$(($c_n + 1));;
     esac
 		export PX4_SIM_MODEL=${target_vehicle}
 		spawn_model ${target_vehicle}${LABEL} $n $target_x $target_y $target_z
