@@ -11,7 +11,7 @@ udp_gcs_port_local=$((18570+px4_instance))
 
 # GCS link
 if [ ${px4_instance} -lt 10 ]; then
-  mavlink start -x -u $udp_gcs_port_local -o 34550 -r 4000000 -f
+  mavlink start -x -u $udp_gcs_port_local -r 4000000 -f
 elif [ ${px4_instance} -lt 20 ]; then
   mavlink start -x -u $udp_gcs_port_local -o 34650 -r 4000000 -f
 else
