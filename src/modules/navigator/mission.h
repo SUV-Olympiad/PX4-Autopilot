@@ -188,6 +188,8 @@ private:
 	 */
 	bool read_mission_item(int offset, struct mission_item_s *mission_item);
 
+    bool read_all_mission_item(int offset, struct mission_item_s *mission_item);
+
 	/**
 	 * Save current mission state to dataman
 	 */
@@ -251,6 +253,7 @@ private:
 	mission_s		_mission {};
 
 	int32_t _current_mission_index{-1};
+	int32_t _custom_current_mission_index{0};
 
 	// track location of planned mission landing
 	bool	_land_start_available{false};
