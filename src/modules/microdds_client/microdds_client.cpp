@@ -300,6 +300,7 @@ void MicroddsClient::run()
 				PX4_INFO("No ping response, disconnecting");
 				_connected = false;
 			}
+		px4_usleep(100*1e3);
 		}
 
 		uxr_delete_session_retries(&session, _connected ? 1 : 0);
