@@ -2,4 +2,4 @@
 # shellcheck disable=SC2154
 
 # micrortps_client start -t UDP -r $((2019+2*px4_instance)) -s $((2020+2*px4_instance))
-microdds_client start -t udp -h 192.168.10.1 -p 5000
+microdds_client start -t udp -h 192.168.10.1 -p 6000
