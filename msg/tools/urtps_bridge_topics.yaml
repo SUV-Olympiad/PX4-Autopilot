@@ -37,11 +37,14 @@ rtps:
     send:    true
   - msg:     vehicle_global_position
     send:    true
-  - msg:     mission
-    send:    true
-  - msg:     navigator_mission_item
-    send:    true
-  - msg:     battery_status
-    send:    true
-  - msg:     mission_result
-    send:    true
+
+#  - msg:     mission
+#    send:    true
+#    receive: true
+#  - msg:     mission_result
+#   send:    true
+#   receive: true
+# - msg:     navigator_mission_item
+#   send:    true
+#   receive: true
+
