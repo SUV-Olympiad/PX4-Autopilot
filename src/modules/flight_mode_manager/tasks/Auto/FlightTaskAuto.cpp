@@ -541,6 +541,11 @@ void FlightTaskAuto::_set_heading_from_mode()
 		// in the subclasses where the velocity setpoints are generated.
 		v.setAll(NAN);
 		break;
+
+	case 5: // Heading points lock
+		_yaw_lock = true;
+		break;
+
 	}
 
 	if (PX4_ISFINITE(v.norm_squared())) {
