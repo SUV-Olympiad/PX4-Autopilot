@@ -153,7 +153,9 @@ void MicroddsClient::run()
 
 		if (!uxr_create_session(&session)) {
 			PX4_ERR("uxr_create_session failed");
-			return;
+            		px4_usleep(1000*1e3);
+            		continue;
+			//return;
 		}
 
 		// Streams
@@ -300,7 +302,9 @@ void MicroddsClient::run()
 				PX4_INFO("No ping response, disconnecting");
 				_connected = false;
 			}
+		px4_usleep(100*1e3);
 		}
+
 
 		uxr_delete_session_retries(&session, _connected ? 1 : 0);
 		_last_payload_tx_rate = 0;
@@ -421,7 +425,7 @@ int MicroddsClient::task_spawn(int argc, char *argv[])
 	_task_id = px4_task_spawn_cmd("microdds_client",
 				      SCHED_DEFAULT,
 				      SCHED_PRIORITY_DEFAULT - 4,
-				      PX4_STACK_ADJUSTED(8000),
+				      PX4_STACK_ADJUSTED(10000),
 				      (px4_main_t)&run_trampoline,
 				      (char *const *)argv);
 

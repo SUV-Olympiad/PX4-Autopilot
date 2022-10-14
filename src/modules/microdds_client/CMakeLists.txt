@@ -106,7 +106,7 @@ target_include_directories(microxrceddsclient INTERFACE ${microxrceddsclient_bui
 px4_add_module(
 	MODULE modules__microdds_client
 	MAIN microdds_client
-	STACK_MAIN 8000
+	STACK_MAIN 10000
 	SRCS
 		microdds_client.cpp
 	DEPENDS
