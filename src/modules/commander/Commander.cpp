@@ -4362,8 +4362,8 @@ void Commander::manual_control_check()
 			}
 		}
 
-	} else if ((manual_control_updated && !manual_control_setpoint.valid)
-		   || hrt_elapsed_time(&_last_valid_manual_control_setpoint) > _param_com_rc_loss_t.get() * 1_s) {
+	} else if ((manual_control_updated && !manual_control_setpoint.valid)) {
+		  // || hrt_elapsed_time(&_last_valid_manual_control_setpoint) > _param_com_rc_loss_t.get() * 1_s) {
 
 		// prohibit stick use in case of reported invalidity or data timeout
 		if (!_vehicle_status.rc_signal_lost) {
@@ -4371,6 +4371,11 @@ void Commander::manual_control_check()
 			_status_changed = true;
 
 			mavlink_log_critical(&_mavlink_log_pub, "Manual control lost\t");
+			mavlink_log_critical(&_mavlink_log_pub, "%d, %d, %lu, %f", 
+					manual_control_updated ,
+					manual_control_setpoint.valid,
+					hrt_elapsed_time(&_last_valid_manual_control_setpoint),  (double)_param_com_rc_loss_t.get() * 1_s
+					);
 			events::send(events::ID("commander_rc_lost"), {events::Log::Critical, events::LogInternal::Info},
 				     "Manual control lost");
 

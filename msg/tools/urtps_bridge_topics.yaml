@@ -45,3 +45,5 @@ rtps:
     send:    true
   - msg:     mission_result
     send:    true
+  - msg:     manual_control_setpoint
+    receive: true
