@@ -1,5 +1,7 @@
 # SUV PX4-Autopilot
 
+### [전체 시스템 실행 메뉴얼](https://github.com/SUV-Olympiad/SUV-Tools/blob/main/shellscript/README.md)
+
 ## Config
 ### vehicles file
 
